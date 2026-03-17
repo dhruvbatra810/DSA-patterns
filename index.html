@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSA Patterns — Complete Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --bg4: #22222e;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --faint: #3a3a5a;
+    --array:  #4f9ef8;
+    --tree:   #3ecf8e;
+    --graph:  #a78bfa;
+    --dp:     #fb923c;
+    --ll:     #f472b6;
+    --heap:   #facc15;
+    --bt:     #34d399;
+    --trie:   #22d3ee;
+    --e: #3ecf8e;
+    --m: #fb923c;
+    --h: #f87171;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+  header {
+    position: relative;
+    padding: 56px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0d0d18 0%, var(--bg) 100%);
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute; top: -60px; left: -60px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(79,158,248,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+  .logo-line { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .logo-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700;
+    background: var(--array); color: #000;
+    padding: 3px 9px; border-radius: 4px; letter-spacing: 0.08em;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 30%, var(--muted) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { margin-top: 10px; font-size: 15px; color: var(--muted); font-weight: 400; }
+  .header-stats { display: flex; gap: 24px; margin-top: 24px; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; gap: 2px; }
+  .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--muted); }
+
+  .controls-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+  }
+  .controls-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 14px; pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #search {
+    width: 100%; padding: 9px 12px 9px 36px;
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    outline: none; transition: border-color 0.2s;
+  }
+  #search:focus { border-color: var(--array); }
+  #search::placeholder { color: var(--faint); }
+  .diff-btns { display: flex; gap: 6px; }
+  .df {
+    padding: 7px 13px; border-radius: 6px;
+    border: 1px solid var(--border2); background: transparent;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em;
+  }
+  .df[data-d="e"] { color: var(--e); }
+  .df[data-d="m"] { color: var(--m); }
+  .df[data-d="h"] { color: var(--h); }
+  .df.on[data-d="e"] { background: rgba(62,207,142,0.12); border-color: var(--e); }
+  .df.on[data-d="m"] { background: rgba(251,146,60,0.12); border-color: var(--m); }
+  .df.on[data-d="h"] { background: rgba(248,113,113,0.12); border-color: var(--h); }
+
+  .cat-bar {
+    padding: 0 40px; border-bottom: 1px solid var(--border);
+    background: var(--bg2); overflow-x: auto; scrollbar-width: none;
+  }
+  .cat-bar::-webkit-scrollbar { display: none; }
+  .cat-bar-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 2px; padding: 8px 0; }
+  .cat-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 6px;
+    border: none; background: transparent;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+    color: var(--muted); cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  }
+  .cat-btn:hover { color: var(--text); background: var(--bg3); }
+  .cat-btn.active { color: var(--text); background: var(--bg4); }
+  .cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 32px 40px 80px; }
+  .result-bar {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); margin-bottom: 20px; letter-spacing: 0.05em;
+  }
+  .result-bar span { color: var(--text); font-weight: 700; }
+
+  .section {
+    margin-bottom: 10px; border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; background: var(--bg2);
+    transition: border-color 0.2s;
+  }
+  .section:hover { border-color: var(--border2); }
+  .sec-header {
+    padding: 14px 18px; display: flex; align-items: center;
+    justify-content: space-between; cursor: pointer;
+    background: var(--bg3); transition: background 0.15s; gap: 10px;
+  }
+  .sec-header:hover { background: var(--bg4); }
+  .sec-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sec-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .cat-pill {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; letter-spacing: 0.06em;
+  }
+  .count-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border2); padding: 1px 8px; border-radius: 4px;
+  }
+  .chevron { font-size: 10px; color: var(--faint); transition: transform 0.2s; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+  .sec-header.open .chevron { transform: rotate(180deg); }
+  .sec-body { display: none; }
+  .sec-body.open { display: block; }
+  .pattern-tip {
+    padding: 10px 18px; font-size: 12px; color: var(--muted);
+    line-height: 1.7; border-bottom: 1px solid var(--border);
+    background: var(--bg); font-family: 'JetBrains Mono', monospace;
+  }
+  .pattern-tip::before { content: '// '; color: var(--faint); }
+
+  .q-row {
+    padding: 10px 18px; display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border); transition: background 0.12s;
+  }
+  .q-row:last-child { border-bottom: none; }
+  .q-row:hover { background: var(--bg3); }
+  .q-num {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--faint); min-width: 24px; flex-shrink: 0;
+  }
+  .q-link {
+    font-size: 13px; color: var(--text); flex: 1; line-height: 1.5;
+    text-decoration: none; font-weight: 400;
+    transition: color 0.15s;
+  }
+  .q-link:hover { color: var(--array); }
+  .q-link:hover .ext-icon { opacity: 1; }
+  .ext-icon {
+    font-size: 10px; margin-left: 5px;
+    color: var(--array); opacity: 0;
+    transition: opacity 0.15s;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .lc-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    background: rgba(255,161,22,0.1); color: #ffa116;
+    border: 1px solid rgba(255,161,22,0.2);
+    text-decoration: none; transition: all 0.15s;
+  }
+  .lc-badge:hover { background: rgba(255,161,22,0.2); }
+  .gfg-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    background: rgba(22,163,74,0.1); color: #16a34a;
+    border: 1px solid rgba(22,163,74,0.2);
+    text-decoration: none; transition: all 0.15s;
+  }
+  .gfg-badge:hover { background: rgba(22,163,74,0.2); }
+  .q-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .diff-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px; letter-spacing: 0.04em; flex-shrink: 0;
+  }
+  .d-e { background: rgba(62,207,142,0.12); color: var(--e); }
+  .d-m { background: rgba(251,146,60,0.12); color: var(--m); }
+  .d-h { background: rgba(248,113,113,0.12); color: var(--h); }
+  .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--faint);
+    padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border);
+  }
+  .q-row:hover .tag { border-color: var(--border2); color: var(--muted); }
+
+  .empty-state { padding: 60px 40px; text-align: center; }
+  .empty-state .big { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { color: var(--muted); font-size: 14px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  @media (max-width: 640px) {
+    header, .controls-wrap, .cat-bar { padding-left: 16px; padding-right: 16px; }
+    main { padding: 20px 16px 60px; }
+    h1 { font-size: 28px; }
+    .tag { display: none; }
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .section { animation: fadeIn 0.25s ease both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-line">
+      <span class="logo-chip">DSA</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">Complete Reference</span>
+    </div>
+    <h1>Patterns &<br>Questions</h1>
+    <p class="subtitle">200+ problems with LeetCode links — organised by pattern</p>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-num" id="total-q">0</span><span class="stat-label">Questions</span></div>
+      <div class="stat"><span class="stat-num">25</span><span class="stat-label">Patterns</span></div>
+      <div class="stat"><span class="stat-num">8</span><span class="stat-label">Categories</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="controls-wrap">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <span class="search-icon">/&gt;</span>
+      <input id="search" placeholder="Search questions or tags..." autocomplete="off" spellcheck="false">
+    </div>
+    <div class="diff-btns">
+      <button class="df on" data-d="e" onclick="toggleDiff('e',this)">EASY</button>
+      <button class="df on" data-d="m" onclick="toggleDiff('m',this)">MED</button>
+      <button class="df on" data-d="h" onclick="toggleDiff('h',this)">HARD</button>
+    </div>
+  </div>
+</div>
+
+<div class="cat-bar">
+  <div class="cat-bar-inner" id="cat-bar"></div>
+</div>
+
+<main>
+  <div class="result-bar" id="result-bar"></div>
+  <div id="content"></div>
+</main>
+
+<script>
+const CATS = {
+  array: { label:'Arrays',       color:'#4f9ef8' },
+  tree:  { label:'Trees',        color:'#3ecf8e' },
+  graph: { label:'Graphs',       color:'#a78bfa' },
+  dp:    { label:'DP',           color:'#fb923c' },
+  ll:    { label:'Linked List',  color:'#f472b6' },
+  heap:  { label:'Heap',         color:'#facc15' },
+  bt:    { label:'Backtracking', color:'#34d399' },
+  trie:  { label:'Tries',        color:'#22d3ee' },
+};
+
+// lc: leetcode slug  |  gfg: gfg url (used when no LC equivalent)
+const DATA = [
+  // ════════════════════════════════ ARRAYS ════════════════════════════════
+  { id:'two-ptr', cat:'array', label:'Two Pointers',
+    tip:'Move pointers inward or same direction based on condition. Works on sorted arrays and string palindromes.',
+    qs:[
+      {t:'Two Sum II – Input Array Is Sorted',    d:'e', lc:'two-sum-ii-input-array-is-sorted',    tags:['sorted']},
+      {t:'3Sum',                                   d:'m', lc:'3sum',                                tags:['dedup','sort']},
+      {t:'4Sum',                                   d:'m', lc:'4sum',                                tags:['dedup']},
+      {t:'Container With Most Water',              d:'m', lc:'container-with-most-water',           tags:['greedy']},
+      {t:'Trapping Rain Water',                    d:'h', lc:'trapping-rain-water',                 tags:['prefix/suffix']},
+      {t:'Remove Duplicates from Sorted Array',    d:'e', lc:'remove-duplicates-from-sorted-array', tags:['in-place']},
+      {t:'Move Zeroes',                            d:'e', lc:'move-zeroes',                         tags:['in-place']},
+      {t:'Sort Colors',                            d:'m', lc:'sort-colors',                         tags:['3-way partition']},
+      {t:'Valid Palindrome',                       d:'e', lc:'valid-palindrome',                    tags:['string']},
+      {t:'Squares of a Sorted Array',              d:'e', lc:'squares-of-a-sorted-array',           tags:['merge']},
+    ]},
+  { id:'sliding', cat:'array', label:'Sliding Window',
+    tip:'Expand right, shrink left when constraint breaks. Pair with hashmap for string windows.',
+    qs:[
+      {t:'Maximum Average Subarray I',                       d:'e', lc:'maximum-average-subarray-i',                         tags:['fixed']},
+      {t:'Longest Substring Without Repeating Characters',   d:'m', lc:'longest-substring-without-repeating-characters',     tags:['hashmap']},
+      {t:'Minimum Window Substring',                         d:'h', lc:'minimum-window-substring',                           tags:['hashmap']},
+      {t:'Fruit Into Baskets',                               d:'m', lc:'fruit-into-baskets',                                 tags:['hashmap']},
+      {t:'Longest Substring with At Most K Distinct Chars',  d:'m', lc:'longest-substring-with-at-most-k-distinct-characters', tags:['hashmap']},
+      {t:'Permutation in String',                            d:'m', lc:'permutation-in-string',                              tags:['freq count']},
+      {t:'Find All Anagrams in a String',                    d:'m', lc:'find-all-anagrams-in-a-string',                      tags:['freq count']},
+      {t:'Max Consecutive Ones III',                         d:'m', lc:'max-consecutive-ones-iii',                           tags:['binary']},
+      {t:'Sliding Window Maximum',                           d:'h', lc:'sliding-window-maximum',                             tags:['deque','monotonic']},
+      {t:'Minimum Size Subarray Sum',                        d:'m', lc:'minimum-size-subarray-sum',                          tags:['variable']},
+    ]},
+  { id:'prefix', cat:'array', label:'Prefix Sum / Difference Array',
+    tip:'Range sum O(1) after O(n) build. Difference array gives O(1) range updates.',
+    qs:[
+      {t:'Range Sum Query – Immutable',          d:'e', lc:'range-sum-query-immutable',             tags:['prefix']},
+      {t:'Subarray Sum Equals K',                d:'m', lc:'subarray-sum-equals-k',                 tags:['hashmap','prefix']},
+      {t:'Contiguous Array',                     d:'m', lc:'contiguous-array',                      tags:['hashmap','prefix']},
+      {t:'Product of Array Except Self',         d:'m', lc:'product-of-array-except-self',          tags:['prefix/suffix']},
+      {t:'Range Sum Query 2D – Immutable',       d:'m', lc:'range-sum-query-2d-immutable',          tags:['2D prefix']},
+      {t:'Car Pooling',                          d:'m', lc:'car-pooling',                           tags:['diff array']},
+      {t:'Corporate Flight Bookings',            d:'m', lc:'corporate-flight-bookings',             tags:['diff array']},
+      {t:'Number of Subarrays with Odd Sum',     d:'m', lc:'number-of-sub-arrays-with-odd-sum',     tags:['parity']},
+    ]},
+  { id:'hash', cat:'array', label:'Hashing / Frequency',
+    tip:'O(1) lookup turns O(n²) brute force into O(n). Great for pairs, duplicates, anagram checks.',
+    qs:[
+      {t:'Two Sum',                          d:'e', lc:'two-sum',                          tags:['classic']},
+      {t:'Group Anagrams',                   d:'m', lc:'group-anagrams',                   tags:['sort key']},
+      {t:'Top K Frequent Elements',          d:'m', lc:'top-k-frequent-elements',          tags:['bucket sort','heap']},
+      {t:'Longest Consecutive Sequence',     d:'m', lc:'longest-consecutive-sequence',     tags:['hashset']},
+      {t:'Find the Duplicate Number',        d:'m', lc:'find-the-duplicate-number',        tags:['cycle','Floyd']},
+      {t:'First Missing Positive',           d:'h', lc:'first-missing-positive',           tags:['index hash']},
+      {t:'Majority Element',                 d:'e', lc:'majority-element',                 tags:['voting']},
+      {t:'Majority Element II',              d:'m', lc:'majority-element-ii',              tags:['voting']},
+      {t:'Isomorphic Strings',               d:'e', lc:'isomorphic-strings',               tags:['bijection']},
+      {t:'Ransom Note',                      d:'e', lc:'ransom-note',                      tags:['freq count']},
+    ]},
+  { id:'binary', cat:'array', label:'Binary Search',
+    tip:'Also use on answer space — define a feasibility predicate and binary search over it.',
+    qs:[
+      {t:'Binary Search',                             d:'e', lc:'binary-search',                            tags:['classic']},
+      {t:'Search in Rotated Sorted Array',            d:'m', lc:'search-in-rotated-sorted-array',           tags:['rotated']},
+      {t:'Find Minimum in Rotated Sorted Array',      d:'m', lc:'find-minimum-in-rotated-sorted-array',     tags:['rotated']},
+      {t:'Find Peak Element',                         d:'m', lc:'find-peak-element',                        tags:['peak']},
+      {t:'Search a 2D Matrix',                        d:'m', lc:'search-a-2d-matrix',                       tags:['matrix']},
+      {t:'Median of Two Sorted Arrays',               d:'h', lc:'median-of-two-sorted-arrays',              tags:['partition']},
+      {t:'Koko Eating Bananas',                       d:'m', lc:'koko-eating-bananas',                      tags:['BS on answer']},
+      {t:'Capacity To Ship Packages Within D Days',   d:'m', lc:'capacity-to-ship-packages-within-d-days',  tags:['BS on answer']},
+      {t:'Split Array Largest Sum',                   d:'h', lc:'split-array-largest-sum',                  tags:['BS on answer']},
+      {t:'Kth Smallest Element in a Sorted Matrix',   d:'m', lc:'kth-smallest-element-in-a-sorted-matrix',  tags:['BS on value']},
+    ]},
+  { id:'sort', cat:'array', label:'Sorting Tricks',
+    tip:'Custom sort, interval merge, sweep line. Most greedy problems need a sort step first.',
+    qs:[
+      {t:'Merge Intervals',              d:'m', lc:'merge-intervals',              tags:['intervals']},
+      {t:'Insert Interval',              d:'m', lc:'insert-interval',              tags:['intervals']},
+      {t:'Non-overlapping Intervals',    d:'m', lc:'non-overlapping-intervals',    tags:['greedy']},
+      {t:'Meeting Rooms II',             d:'m', lc:'meeting-rooms-ii',             tags:['heap','sweep']},
+      {t:'Largest Number',               d:'m', lc:'largest-number',               tags:['custom cmp']},
+      {t:'H-Index',                      d:'m', lc:'h-index',                      tags:['counting sort']},
+      {t:'Maximum Gap',                  d:'h', lc:'maximum-gap',                  tags:['bucket sort','pigeonhole']},
+    ]},
+  { id:'kadane', cat:'array', label:'Kadane / Subarray DP',
+    tip:'Max/min subarray. Extend with extra state for product, circular, or stock variants.',
+    qs:[
+      {t:'Maximum Subarray',                          d:'m', lc:'maximum-subarray',                              tags:['kadane','classic']},
+      {t:'Maximum Product Subarray',                  d:'m', lc:'maximum-product-subarray',                      tags:['min/max track']},
+      {t:'Maximum Sum Circular Subarray',             d:'m', lc:'maximum-sum-circular-subarray',                 tags:['complement']},
+      {t:'Best Time to Buy and Sell Stock',           d:'e', lc:'best-time-to-buy-and-sell-stock',               tags:['prefix min']},
+      {t:'Best Time to Buy and Sell Stock II',        d:'m', lc:'best-time-to-buy-and-sell-stock-ii',            tags:['greedy']},
+      {t:'Best Time to Buy and Sell Stock III',       d:'h', lc:'best-time-to-buy-and-sell-stock-iii',           tags:['state machine']},
+      {t:'Best Time to Buy and Sell Stock IV',        d:'h', lc:'best-time-to-buy-and-sell-stock-iv',            tags:['dp']},
+      {t:'Subarray Product Less Than K',              d:'m', lc:'subarray-product-less-than-k',                  tags:['two pointers']},
+    ]},
+  { id:'mono-stack', cat:'array', label:'Monotonic Stack',
+    tip:'Maintain inc/dec stack for next greater/smaller. Core for spans, histograms, temperatures.',
+    qs:[
+      {t:'Next Greater Element I',                d:'e', lc:'next-greater-element-i',            tags:['classic']},
+      {t:'Next Greater Element II',               d:'m', lc:'next-greater-element-ii',           tags:['circular']},
+      {t:'Daily Temperatures',                    d:'m', lc:'daily-temperatures',                tags:['classic']},
+      {t:'Largest Rectangle in Histogram',        d:'h', lc:'largest-rectangle-in-histogram',   tags:['classic']},
+      {t:'Trapping Rain Water',                   d:'h', lc:'trapping-rain-water',               tags:['area']},
+      {t:'Sum of Subarray Minimums',              d:'m', lc:'sum-of-subarray-minimums',          tags:['contribution']},
+      {t:'132 Pattern',                           d:'m', lc:'132-pattern',                       tags:['ordering']},
+      {t:'Remove K Digits',                       d:'m', lc:'remove-k-digits',                   tags:['greedy']},
+      {t:'Online Stock Span',                     d:'m', lc:'online-stock-span',                 tags:['span']},
+    ]},
+  { id:'matrix', cat:'array', label:'Matrix / 2D Array',
+    tip:'BFS/DFS for regions, staircase search, rotate/transpose, 2D prefix sum.',
+    qs:[
+      {t:'Rotate Image',                      d:'m', lc:'rotate-image',                      tags:['transpose','reverse']},
+      {t:'Spiral Matrix',                     d:'m', lc:'spiral-matrix',                     tags:['simulation']},
+      {t:'Set Matrix Zeroes',                 d:'m', lc:'set-matrix-zeroes',                 tags:['in-place']},
+      {t:'Maximal Rectangle',                 d:'h', lc:'maximal-rectangle',                 tags:['histogram','stack']},
+      {t:'Maximal Square',                    d:'m', lc:'maximal-square',                    tags:['dp']},
+      {t:'Search a 2D Matrix II',             d:'m', lc:'search-a-2d-matrix-ii',             tags:['staircase']},
+      {t:'Game of Life',                      d:'m', lc:'game-of-life',                      tags:['in-place','bit trick']},
+      {t:'Word Search',                       d:'m', lc:'word-search',                       tags:['backtracking']},
+    ]},
+
+  // ════════════════════════════════ TREES ════════════════════════════════
+  { id:'tree-trav', cat:'tree', label:'Tree Traversals',
+    tip:'Pre/in/post order DFS. BFS = level order with queue. Iterative uses explicit stack.',
+    qs:[
+      {t:'Binary Tree Inorder Traversal',              d:'e', lc:'binary-tree-inorder-traversal',              tags:['dfs','iterative']},
+      {t:'Binary Tree Level Order Traversal',          d:'m', lc:'binary-tree-level-order-traversal',          tags:['bfs','queue']},
+      {t:'Binary Tree Zigzag Level Order Traversal',   d:'m', lc:'binary-tree-zigzag-level-order-traversal',   tags:['bfs','deque']},
+      {t:'N-ary Tree Level Order Traversal',           d:'m', lc:'n-ary-tree-level-order-traversal',           tags:['bfs']},
+      {t:'Binary Tree Right Side View',                d:'m', lc:'binary-tree-right-side-view',                tags:['bfs/dfs']},
+      {t:'Average of Levels in Binary Tree',           d:'e', lc:'average-of-levels-in-binary-tree',           tags:['bfs']},
+      {t:'Vertical Order Traversal of a Binary Tree',  d:'h', lc:'vertical-order-traversal-of-a-binary-tree',  tags:['bfs','hashmap']},
+      {t:'Flatten Binary Tree to Linked List',         d:'m', lc:'flatten-binary-tree-to-linked-list',         tags:['preorder']},
+    ]},
+  { id:'tree-path', cat:'tree', label:'Tree Path / Depth',
+    tip:'DFS with return value. Pass max/min down, accumulate sums up. Diameter = left + right depth.',
+    qs:[
+      {t:'Maximum Depth of Binary Tree',          d:'e', lc:'maximum-depth-of-binary-tree',            tags:['dfs','classic']},
+      {t:'Minimum Depth of Binary Tree',          d:'e', lc:'minimum-depth-of-binary-tree',            tags:['bfs/dfs']},
+      {t:'Path Sum',                              d:'e', lc:'path-sum',                                tags:['dfs']},
+      {t:'Path Sum II',                           d:'m', lc:'path-sum-ii',                             tags:['backtracking']},
+      {t:'Path Sum III',                          d:'m', lc:'path-sum-iii',                            tags:['prefix sum','dfs']},
+      {t:'Binary Tree Maximum Path Sum',          d:'h', lc:'binary-tree-maximum-path-sum',            tags:['postorder']},
+      {t:'Diameter of Binary Tree',               d:'e', lc:'diameter-of-binary-tree',                 tags:['postorder']},
+      {t:'Balanced Binary Tree',                  d:'e', lc:'balanced-binary-tree',                    tags:['postorder','height']},
+      {t:'Longest Univalue Path',                 d:'m', lc:'longest-univalue-path',                   tags:['postorder']},
+      {t:'Sum Root to Leaf Numbers',              d:'m', lc:'sum-root-to-leaf-numbers',                tags:['dfs']},
+    ]},
+  { id:'bst', cat:'tree', label:'BST Patterns',
+    tip:'Inorder gives sorted sequence. Use BST property (left < root < right) to prune search.',
+    qs:[
+      {t:'Validate Binary Search Tree',               d:'m', lc:'validate-binary-search-tree',               tags:['bounds','inorder']},
+      {t:'Kth Smallest Element in a BST',             d:'m', lc:'kth-smallest-element-in-a-bst',             tags:['inorder']},
+      {t:'Lowest Common Ancestor of a BST',           d:'m', lc:'lowest-common-ancestor-of-a-binary-search-tree', tags:['bst property']},
+      {t:'Lowest Common Ancestor of a Binary Tree',   d:'m', lc:'lowest-common-ancestor-of-a-binary-tree',   tags:['postorder']},
+      {t:'Delete Node in a BST',                      d:'m', lc:'delete-node-in-a-bst',                      tags:['restructure']},
+      {t:'Insert into a Binary Search Tree',          d:'m', lc:'insert-into-a-binary-search-tree',          tags:['recursive']},
+      {t:'Recover Binary Search Tree',                d:'m', lc:'recover-binary-search-tree',                tags:['inorder','swap']},
+      {t:'Convert Sorted Array to Binary Search Tree',d:'e', lc:'convert-sorted-array-to-binary-search-tree',tags:['divide & conquer']},
+      {t:'Serialize and Deserialize Binary Tree',     d:'h', lc:'serialize-and-deserialize-binary-tree',     tags:['bfs/dfs','design']},
+    ]},
+  { id:'tree-construct', cat:'tree', label:'Tree Construction',
+    tip:'Preorder+inorder or postorder+inorder uniquely determines a tree. Use hashmap for O(1) inorder lookup.',
+    qs:[
+      {t:'Construct Binary Tree from Preorder and Inorder',  d:'m', lc:'construct-binary-tree-from-preorder-and-inorder-traversal',  tags:['divide & conquer']},
+      {t:'Construct Binary Tree from Postorder and Inorder', d:'m', lc:'construct-binary-tree-from-inorder-and-postorder-traversal', tags:['divide & conquer']},
+      {t:'Construct BST from Preorder Traversal',            d:'m', lc:'construct-binary-search-tree-from-preorder-traversal',       tags:['bounds']},
+      {t:'Maximum Binary Tree',                              d:'m', lc:'maximum-binary-tree',                                        tags:['divide & conquer']},
+      {t:'Merge Two Binary Trees',                           d:'e', lc:'merge-two-binary-trees',                                     tags:['dfs']},
+      {t:'Symmetric Tree',                                   d:'e', lc:'symmetric-tree',                                             tags:['mirror dfs']},
+      {t:'Same Tree',                                        d:'e', lc:'same-tree',                                                  tags:['dfs']},
+      {t:'Invert Binary Tree',                               d:'e', lc:'invert-binary-tree',                                         tags:['dfs']},
+    ]},
+
+  // ════════════════════════════════ GRAPHS ════════════════════════════════
+  { id:'graph-bfs', cat:'graph', label:'Graph BFS',
+    tip:'Shortest path in unweighted graph. Level-by-level expansion. Visited set prevents revisiting.',
+    qs:[
+      {t:'Number of Islands',                   d:'m', lc:'number-of-islands',                    tags:['flood fill','classic']},
+      {t:'Rotting Oranges',                     d:'m', lc:'rotting-oranges',                      tags:['multi-source BFS']},
+      {t:'01 Matrix',                           d:'m', lc:'01-matrix',                            tags:['multi-source BFS']},
+      {t:'Walls and Gates',                     d:'m', lc:'walls-and-gates',                      tags:['multi-source BFS']},
+      {t:'Shortest Path in Binary Matrix',      d:'m', lc:'shortest-path-in-binary-matrix',       tags:['BFS','grid']},
+      {t:'Word Ladder',                         d:'h', lc:'word-ladder',                          tags:['BFS','bidirectional']},
+      {t:'Pacific Atlantic Water Flow',         d:'m', lc:'pacific-atlantic-water-flow',          tags:['reverse BFS']},
+      {t:'Snakes and Ladders',                  d:'m', lc:'snakes-and-ladders',                   tags:['BFS','grid']},
+    ]},
+  { id:'graph-dfs', cat:'graph', label:'Graph DFS / Cycle Detection',
+    tip:'Connected components, cycle detection (white/gray/black coloring), DFS on implicit graphs.',
+    qs:[
+      {t:'Clone Graph',                         d:'m', lc:'clone-graph',                          tags:['hashmap','dfs']},
+      {t:'Number of Connected Components',      d:'m', lc:'number-of-connected-components-in-an-undirected-graph', tags:['union-find/dfs']},
+      {t:'Graph Valid Tree',                    d:'m', lc:'graph-valid-tree',                     tags:['cycle','union-find']},
+      {t:'Course Schedule',                     d:'m', lc:'course-schedule',                      tags:['cycle','topological']},
+      {t:'Course Schedule II',                  d:'m', lc:'course-schedule-ii',                   tags:['topological order']},
+      {t:'Find Eventual Safe States',           d:'m', lc:'find-eventual-safe-states',            tags:['reverse graph']},
+      {t:'Number of Enclaves',                  d:'m', lc:'number-of-enclaves',                   tags:['boundary DFS']},
+      {t:'Surrounded Regions',                  d:'m', lc:'surrounded-regions',                   tags:['boundary DFS']},
+    ]},
+  { id:'topo', cat:'graph', label:'Topological Sort',
+    tip:"Kahn's (BFS, in-degree) or DFS postorder. Only DAGs. Detects cycles if not all nodes processed.",
+    qs:[
+      {t:'Course Schedule',                         d:'m', lc:'course-schedule',                              tags:['cycle detect']},
+      {t:'Course Schedule II',                      d:'m', lc:'course-schedule-ii',                           tags:['order']},
+      {t:'Alien Dictionary',                        d:'h', lc:'alien-dictionary',                             tags:['build graph']},
+      {t:'Minimum Height Trees',                    d:'m', lc:'minimum-height-trees',                         tags:['leaf pruning']},
+      {t:'Parallel Courses',                        d:'m', lc:'parallel-courses',                             tags:['longest path DAG']},
+      {t:'Task Scheduler',                          d:'m', lc:'task-scheduler',                               tags:['greedy','heap']},
+      {t:'Sort Items by Groups Respecting Dependencies', d:'h', lc:'sort-items-by-groups-respecting-dependencies', tags:['topo','complex']},
+    ]},
+  { id:'sp', cat:'graph', label:'Shortest Path',
+    tip:'Dijkstra (non-negative, heap). Bellman-Ford (negative edges). Floyd-Warshall (all-pairs).',
+    qs:[
+      {t:'Network Delay Time',                          d:'m', lc:'network-delay-time',                                 tags:['Dijkstra','classic']},
+      {t:'Cheapest Flights Within K Stops',             d:'m', lc:'cheapest-flights-within-k-stops',                    tags:['Bellman-Ford']},
+      {t:'Path With Minimum Effort',                    d:'m', lc:'path-with-minimum-effort',                           tags:['Dijkstra']},
+      {t:'Path With Maximum Probability',               d:'m', lc:'path-with-maximum-probability',                      tags:['Dijkstra']},
+      {t:'Find the City With the Smallest Number of Neighbors', d:'m', lc:'find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance', tags:['Floyd-Warshall']},
+      {t:'Swim in Rising Water',                        d:'h', lc:'swim-in-rising-water',                               tags:['Dijkstra']},
+      {t:'Minimum Cost to Connect All Points',          d:'m', lc:'min-cost-to-connect-all-points',                     tags:['Prim','Kruskal']},
+    ]},
+  { id:'uf', cat:'graph', label:'Union Find',
+    tip:'Disjoint sets with path compression + union by rank. O(α(n)) ≈ O(1). Great for dynamic connectivity.',
+    qs:[
+      {t:'Number of Connected Components in an Undirected Graph', d:'m', lc:'number-of-connected-components-in-an-undirected-graph', tags:['classic']},
+      {t:'Graph Valid Tree',                    d:'m', lc:'graph-valid-tree',                     tags:['cycle']},
+      {t:'Redundant Connection',                d:'m', lc:'redundant-connection',                 tags:['cycle']},
+      {t:'Accounts Merge',                      d:'m', lc:'accounts-merge',                       tags:['grouping']},
+      {t:'Most Stones Removed with Same Row or Column', d:'m', lc:'most-stones-removed-with-same-row-or-column', tags:['grouping']},
+      {t:'Satisfiability of Equality Equations', d:'m', lc:'satisfiability-of-equality-equations',tags:['grouping']},
+      {t:'Smallest String With Swaps',          d:'m', lc:'smallest-string-with-swaps',          tags:['grouping']},
+    ]},
+
+  // ════════════════════════════════ DYNAMIC PROGRAMMING ════════════════════════════════
+  { id:'dp1d', cat:'dp', label:'1D DP',
+    tip:"dp[i] depends on constant previous states. Define what dp[i] means before writing the recurrence.",
+    qs:[
+      {t:'Climbing Stairs',                     d:'e', lc:'climbing-stairs',                      tags:['fibonacci','classic']},
+      {t:'House Robber',                        d:'m', lc:'house-robber',                         tags:['no-adjacent']},
+      {t:'House Robber II',                     d:'m', lc:'house-robber-ii',                      tags:['two passes']},
+      {t:'Jump Game',                           d:'m', lc:'jump-game',                            tags:['greedy/dp']},
+      {t:'Jump Game II',                        d:'m', lc:'jump-game-ii',                         tags:['greedy/dp']},
+      {t:'Coin Change',                         d:'m', lc:'coin-change',                          tags:['unbounded knapsack']},
+      {t:'Coin Change II',                      d:'m', lc:'coin-change-ii',                       tags:['unbounded knapsack']},
+      {t:'Decode Ways',                         d:'m', lc:'decode-ways',                          tags:['string dp']},
+      {t:'Word Break',                          d:'m', lc:'word-break',                           tags:['string dp','hashset']},
+      {t:'Perfect Squares',                     d:'m', lc:'perfect-squares',                      tags:['BFS/dp']},
+      {t:'Integer Break',                       d:'m', lc:'integer-break',                        tags:['math/dp']},
+    ]},
+  { id:'dp2d', cat:'dp', label:'2D / Grid DP',
+    tip:'dp[i][j] from dp[i-1][j] and dp[i][j-1]. Common for paths, obstacles, string matching.',
+    qs:[
+      {t:'Unique Paths',                        d:'m', lc:'unique-paths',                         tags:['grid','classic']},
+      {t:'Unique Paths II',                     d:'m', lc:'unique-paths-ii',                      tags:['grid','obstacles']},
+      {t:'Minimum Path Sum',                    d:'m', lc:'minimum-path-sum',                     tags:['grid']},
+      {t:'Triangle',                            d:'m', lc:'triangle',                             tags:['grid dp']},
+      {t:'Dungeon Game',                        d:'h', lc:'dungeon-game',                         tags:['reverse dp']},
+      {t:'Maximal Square',                      d:'m', lc:'maximal-square',                       tags:['2D dp']},
+      {t:'Cherry Pickup',                       d:'h', lc:'cherry-pickup',                        tags:['multi-agent dp']},
+      {t:'Paint House',                         d:'m', lc:'paint-house',                          tags:['state dp']},
+    ]},
+  { id:'dpstring', cat:'dp', label:'String DP (LCS / LIS / Edit)',
+    tip:'LCS, edit distance, LIS. Classic 2D DP on two sequences. O(n²) time, optimizable.',
+    qs:[
+      {t:'Longest Common Subsequence',          d:'m', lc:'longest-common-subsequence',           tags:['LCS','classic']},
+      {t:'Edit Distance',                       d:'m', lc:'edit-distance',                        tags:['classic']},
+      {t:'Longest Increasing Subsequence',      d:'m', lc:'longest-increasing-subsequence',       tags:['LIS','patience sort']},
+      {t:'Longest Palindromic Subsequence',     d:'m', lc:'longest-palindromic-subsequence',      tags:['LCS variant']},
+      {t:'Longest Palindromic Substring',       d:'m', lc:'longest-palindromic-substring',        tags:['expand/Manacher']},
+      {t:'Palindrome Partitioning II',          d:'h', lc:'palindrome-partitioning-ii',           tags:['interval dp']},
+      {t:'Distinct Subsequences',               d:'h', lc:'distinct-subsequences',                tags:['LCS variant']},
+      {t:'Interleaving String',                 d:'m', lc:'interleaving-string',                  tags:['2D dp']},
+      {t:'Regular Expression Matching',         d:'h', lc:'regular-expression-matching',          tags:['wildcard dp']},
+      {t:'Wildcard Matching',                   d:'h', lc:'wildcard-matching',                    tags:['wildcard dp']},
+    ]},
+  { id:'knapsack', cat:'dp', label:'Knapsack',
+    tip:'0/1: each item once. Unbounded: unlimited. Subset sum = knapsack on booleans.',
+    qs:[
+      {t:'Partition Equal Subset Sum',          d:'m', lc:'partition-equal-subset-sum',           tags:['0/1 knapsack','classic']},
+      {t:'Target Sum',                          d:'m', lc:'target-sum',                           tags:['0/1 knapsack']},
+      {t:'Last Stone Weight II',                d:'m', lc:'last-stone-weight-ii',                 tags:['0/1 knapsack']},
+      {t:'Ones and Zeroes',                     d:'m', lc:'ones-and-zeroes',                      tags:['2D 0/1 knapsack']},
+      {t:'Coin Change (unbounded)',              d:'m', lc:'coin-change',                          tags:['unbounded']},
+      {t:'Combination Sum IV',                  d:'m', lc:'combination-sum-iv',                   tags:['unbounded','order matters']},
+    ]},
+  { id:'interval-dp', cat:'dp', label:'Interval / Range DP',
+    tip:'dp[i][j] = optimal over subarray i..j. Fill by increasing length. Typically O(n³).',
+    qs:[
+      {t:'Burst Balloons',                      d:'h', lc:'burst-balloons',                       tags:['classic','interval dp']},
+      {t:'Minimum Cost to Merge Stones',        d:'h', lc:'minimum-cost-to-merge-stones',         tags:['interval dp']},
+      {t:'Strange Printer',                     d:'h', lc:'strange-printer',                      tags:['interval dp']},
+      {t:'Palindrome Partitioning II',          d:'h', lc:'palindrome-partitioning-ii',           tags:['interval dp']},
+      {t:'Scramble String',                     d:'h', lc:'scramble-string',                      tags:['memoization']},
+    ]},
+  { id:'dp-state', cat:'dp', label:'State Machine / Bitmask DP',
+    tip:'State machine for buy/sell stocks. Bitmask DP for subset enumeration when n ≤ 20.',
+    qs:[
+      {t:'Best Time to Buy and Sell Stock with Cooldown', d:'m', lc:'best-time-to-buy-and-sell-stock-with-cooldown', tags:['state machine']},
+      {t:'Best Time to Buy and Sell Stock with Transaction Fee', d:'m', lc:'best-time-to-buy-and-sell-stock-with-transaction-fee', tags:['state machine']},
+      {t:'Count Vowels Permutation',            d:'h', lc:'count-vowels-permutation',             tags:['state machine']},
+      {t:'Minimum XOR Sum of Two Arrays',       d:'h', lc:'minimum-xor-sum-of-two-arrays',        tags:['bitmask','assignment']},
+    ]},
+
+  // ════════════════════════════════ LINKED LIST ════════════════════════════════
+  { id:'ll-ptr', cat:'ll', label:'Fast & Slow Pointers',
+    tip:"Floyd's algorithm: slow moves 1, fast moves 2. Cycle detect, middle node, kth from end.",
+    qs:[
+      {t:'Linked List Cycle',                   d:'e', lc:'linked-list-cycle',                    tags:["Floyd's",'classic']},
+      {t:'Linked List Cycle II',                d:'m', lc:'linked-list-cycle-ii',                 tags:["Floyd's"]},
+      {t:'Middle of the Linked List',           d:'e', lc:'middle-of-the-linked-list',            tags:['slow/fast']},
+      {t:'Palindrome Linked List',              d:'e', lc:'palindrome-linked-list',               tags:['middle','reverse']},
+      {t:'Remove Nth Node From End of List',    d:'m', lc:'remove-nth-node-from-end-of-list',     tags:['two pointers']},
+      {t:'Reorder List',                        d:'m', lc:'reorder-list',                         tags:['middle','reverse','merge']},
+      {t:'Happy Number',                        d:'e', lc:'happy-number',                         tags:['cycle']},
+    ]},
+  { id:'ll-rev', cat:'ll', label:'Reversal Patterns',
+    tip:'Track prev/curr/next. Reverse full list, sublist i..j, or every k-group.',
+    qs:[
+      {t:'Reverse Linked List',                 d:'e', lc:'reverse-linked-list',                  tags:['classic','iterative/recursive']},
+      {t:'Reverse Linked List II',              d:'m', lc:'reverse-linked-list-ii',               tags:['in-place']},
+      {t:'Reverse Nodes in k-Group',            d:'h', lc:'reverse-nodes-in-k-group',             tags:['k-group']},
+      {t:'Swap Nodes in Pairs',                 d:'m', lc:'swap-nodes-in-pairs',                  tags:['reverse pairs']},
+      {t:'Rotate List',                         d:'m', lc:'rotate-list',                          tags:['find tail','reconnect']},
+    ]},
+  { id:'ll-merge', cat:'ll', label:'Merge / Sort Linked List',
+    tip:'Merge two sorted lists is the building block for merge sort and k-way merge on lists.',
+    qs:[
+      {t:'Merge Two Sorted Lists',              d:'e', lc:'merge-two-sorted-lists',               tags:['classic']},
+      {t:'Merge k Sorted Lists',                d:'h', lc:'merge-k-sorted-lists',                 tags:['heap','divide & conquer']},
+      {t:'Sort List',                           d:'m', lc:'sort-list',                            tags:['merge sort','O(n log n)']},
+      {t:'Add Two Numbers',                     d:'m', lc:'add-two-numbers',                      tags:['carry','simulation']},
+      {t:'Add Two Numbers II',                  d:'m', lc:'add-two-numbers-ii',                   tags:['stack']},
+      {t:'Flatten a Multilevel Doubly Linked List', d:'m', lc:'flatten-a-multilevel-doubly-linked-list', tags:['dfs/stack']},
+    ]},
+
+  // ════════════════════════════════ HEAP ════════════════════════════════
+  { id:'heap-top', cat:'heap', label:'Top K / K-way Merge',
+    tip:'Min-heap size K for top-K largest. Max-heap for Kth smallest. K-way merge via heap.',
+    qs:[
+      {t:'Kth Largest Element in an Array',     d:'m', lc:'kth-largest-element-in-an-array',      tags:['quickselect','min-heap']},
+      {t:'Kth Largest Element in a Stream',     d:'e', lc:'kth-largest-element-in-a-stream',      tags:['min-heap','design']},
+      {t:'Top K Frequent Elements',             d:'m', lc:'top-k-frequent-elements',              tags:['bucket sort','heap']},
+      {t:'Top K Frequent Words',                d:'m', lc:'top-k-frequent-words',                 tags:['min-heap']},
+      {t:'K Closest Points to Origin',          d:'m', lc:'k-closest-points-to-origin',           tags:['max-heap','quickselect']},
+      {t:'Merge k Sorted Lists',                d:'h', lc:'merge-k-sorted-lists',                 tags:['min-heap']},
+      {t:'Smallest Range Covering Elements from K Lists', d:'h', lc:'smallest-range-covering-elements-from-k-lists', tags:['min-heap','sliding']},
+      {t:'Find K Pairs with Smallest Sums',     d:'m', lc:'find-k-pairs-with-smallest-sums',      tags:['min-heap']},
+    ]},
+  { id:'heap-misc', cat:'heap', label:'Two Heaps / Scheduling',
+    tip:'Two heaps (max+min) maintain balanced split — classic for running median. Greedy scheduling uses max-heap.',
+    qs:[
+      {t:'Find Median from Data Stream',        d:'h', lc:'find-median-from-data-stream',         tags:['two heaps','classic']},
+      {t:'Sliding Window Median',               d:'h', lc:'sliding-window-median',                tags:['two heaps']},
+      {t:'IPO',                                 d:'h', lc:'ipo',                                  tags:['two heaps','greedy']},
+      {t:'Task Scheduler',                      d:'m', lc:'task-scheduler',                       tags:['max-heap','greedy']},
+      {t:'Reorganize String',                   d:'m', lc:'reorganize-string',                    tags:['max-heap','greedy']},
+      {t:'Maximum Frequency Stack',             d:'h', lc:'maximum-frequency-stack',              tags:['freq map','design']},
+      {t:'Meeting Rooms II',                    d:'m', lc:'meeting-rooms-ii',                     tags:['min-heap','sweep']},
+    ]},
+
+  // ════════════════════════════════ BACKTRACKING ════════════════════════════════
+  { id:'bt-subset', cat:'bt', label:'Subsets / Combinations',
+    tip:'Choose/not-choose pattern. Sort first to handle duplicates. Start index prevents re-use.',
+    qs:[
+      {t:'Subsets',                             d:'m', lc:'subsets',                              tags:['classic','power set']},
+      {t:'Subsets II',                          d:'m', lc:'subsets-ii',                           tags:['skip duplicates']},
+      {t:'Combinations',                        d:'m', lc:'combinations',                         tags:['choose k of n']},
+      {t:'Combination Sum',                     d:'m', lc:'combination-sum',                      tags:['unbounded']},
+      {t:'Combination Sum II',                  d:'m', lc:'combination-sum-ii',                   tags:['skip duplicates']},
+      {t:'Combination Sum III',                 d:'m', lc:'combination-sum-iii',                  tags:['k numbers sum n']},
+      {t:'Letter Combinations of a Phone Number', d:'m', lc:'letter-combinations-of-a-phone-number', tags:['mapping']},
+    ]},
+  { id:'bt-perm', cat:'bt', label:'Permutations',
+    tip:'Swap-based or used[] array. Sort + skip-duplicate handles duplicates efficiently.',
+    qs:[
+      {t:'Permutations',                        d:'m', lc:'permutations',                         tags:['classic','swap']},
+      {t:'Permutations II',                     d:'m', lc:'permutations-ii',                      tags:['skip duplicates']},
+      {t:'Next Permutation',                    d:'m', lc:'next-permutation',                     tags:['suffix scan']},
+      {t:'Permutation Sequence',                d:'h', lc:'permutation-sequence',                 tags:['factorial number system']},
+      {t:'Generate Parentheses',                d:'m', lc:'generate-parentheses',                 tags:['open/close count']},
+      {t:'N-Queens',                            d:'h', lc:'n-queens',                             tags:['constraint check']},
+      {t:'Sudoku Solver',                       d:'h', lc:'sudoku-solver',                        tags:['constraint check']},
+    ]},
+  { id:'bt-search', cat:'bt', label:'Search / Partition Backtracking',
+    tip:'Prune early. Word search, restore IP addresses, expression operators.',
+    qs:[
+      {t:'Word Search',                         d:'m', lc:'word-search',                          tags:['grid dfs']},
+      {t:'Word Search II',                      d:'h', lc:'word-search-ii',                       tags:['trie','pruning']},
+      {t:'Restore IP Addresses',                d:'m', lc:'restore-ip-addresses',                 tags:['pruning']},
+      {t:'Palindrome Partitioning',             d:'m', lc:'palindrome-partitioning',              tags:['partition']},
+      {t:'Expression Add Operators',            d:'h', lc:'expression-add-operators',             tags:['expression eval']},
+      {t:'Remove Invalid Parentheses',          d:'h', lc:'remove-invalid-parentheses',           tags:['BFS/backtrack']},
+      {t:'Beautiful Arrangement',               d:'m', lc:'beautiful-arrangement',                tags:['permutation','pruning']},
+    ]},
+
+  // ════════════════════════════════ TRIES ════════════════════════════════
+  { id:'trie-basic', cat:'trie', label:'Trie (Prefix Tree)',
+    tip:'Insert/search/startsWith in O(L). TrieNode with children[26] and isEnd flag.',
+    qs:[
+      {t:'Implement Trie (Prefix Tree)',         d:'m', lc:'implement-trie-prefix-tree',           tags:['design','classic']},
+      {t:'Design Add and Search Words Data Structure', d:'m', lc:'design-add-and-search-words-data-structure', tags:['DFS on trie']},
+      {t:'Word Search II',                       d:'h', lc:'word-search-ii',                       tags:['trie + backtrack']},
+      {t:'Replace Words',                        d:'m', lc:'replace-words',                        tags:['prefix lookup']},
+      {t:'Maximum XOR of Two Numbers in an Array', d:'m', lc:'maximum-xor-of-two-numbers-in-an-array', tags:['binary trie']},
+      {t:'Implement Magic Dictionary',           d:'m', lc:'implement-magic-dictionary',           tags:['edit distance','trie']},
+      {t:'Longest Word in Dictionary',           d:'m', lc:'longest-word-in-dictionary',           tags:['BFS on trie']},
+      {t:'Map Sum Pairs',                        d:'m', lc:'map-sum-pairs',                        tags:['design','prefix sum']},
+      {t:'Search Suggestions System',            d:'m', lc:'search-suggestions-system',            tags:['sorted trie']},
+    ]},
+];
+
+// ── STATE ──
+let activeCat = 'all';
+let query = '';
+let diffs = new Set(['e','m','h']);
+const diffLabels = { e:'Easy', m:'Medium', h:'Hard' };
+
+// ── TOTAL COUNT ──
+const totalQ = DATA.reduce((s,sec) => s + sec.qs.length, 0);
+document.getElementById('total-q').textContent = totalQ;
+
+// ── EVENTS ──
+document.getElementById('search').addEventListener('input', e => {
+  query = e.target.value.toLowerCase(); render();
+});
+function toggleDiff(d, btn) {
+  if (diffs.has(d)) diffs.delete(d); else diffs.add(d);
+  btn.classList.toggle('on', diffs.has(d));
+  render();
+}
+function setCat(id) { activeCat = id; renderCatBar(); render(); }
+
+// ── CAT BAR ──
+function renderCatBar() {
+  const el = document.getElementById('cat-bar');
+  const cats = [{ id:'all', label:'All', color:'#7a7a9a' },
+    ...Object.entries(CATS).map(([id,c]) => ({ id, ...c }))];
+  el.innerHTML = cats.map(c => `
+    <button class="cat-btn${activeCat===c.id?' active':''}" onclick="setCat('${c.id}')">
+      <span class="cat-dot" style="background:${c.color}"></span>${c.label}
+    </button>`).join('');
+}
+
+// ── RENDER ──
+function render() {
+  const sections = activeCat === 'all' ? DATA : DATA.filter(s => s.cat === activeCat);
+  let totalVis = 0; let secVis = 0; let html = '';
+
+  sections.forEach((s, si) => {
+    const qs = s.qs.filter(q =>
+      diffs.has(q.d) &&
+      (!query || q.t.toLowerCase().includes(query) || q.tags.some(t => t.toLowerCase().includes(query)))
+    );
+    if (!qs.length) return;
+    totalVis += qs.length; secVis++;
+    const cat = CATS[s.cat];
+    const isOpen = activeCat === s.cat || !!query;
+
+    html += `<div class="section" style="animation-delay:${si*0.03}s">
+      <div class="sec-header${isOpen?' open':''}" onclick="toggleSec(this)">
+        <div class="sec-left">
+          <span class="cat-dot" style="background:${cat.color}"></span>
+          <span class="sec-title">${s.label}</span>
+          <span class="cat-pill" style="background:${cat.color}18;color:${cat.color}">${cat.label}</span>
+          <span class="count-badge">${qs.length}q</span>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="sec-body${isOpen?' open':''}">
+        <div class="pattern-tip">${s.tip}</div>
+        ${qs.map((q,i) => {
+          const href = q.lc
+            ? `https://leetcode.com/problems/${q.lc}/`
+            : q.gfg || '#';
+          const platform = q.lc ? 'LC' : 'GFG';
+          const badgeClass = q.lc ? 'lc-badge' : 'gfg-badge';
+          return `
+          <div class="q-row">
+            <span class="q-num">${String(i+1).padStart(2,'0')}</span>
+            <a class="q-link" href="${href}" target="_blank" rel="noopener">
+              ${q.t}<span class="ext-icon">↗</span>
+            </a>
+            <div class="q-right">
+              <span class="diff-badge d-${q.d}">${diffLabels[q.d]}</span>
+              <a class="${badgeClass}" href="${href}" target="_blank" rel="noopener">${platform}</a>
+              ${q.tags.map(t=>`<span class="tag">${t}</span>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('content').innerHTML = html || `
+    <div class="empty-state">
+      <div class="big">◌</div>
+      <p>No questions match your filters.</p>
+    </div>`;
+
+  document.getElementById('result-bar').innerHTML =
+    `Showing <span>${totalVis}</span> questions across <span>${secVis}</span> patterns`;
+}
+
+function toggleSec(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+// ── INIT ──
+renderCatBar();
+render();
+</script>
+</body>
+</html>
